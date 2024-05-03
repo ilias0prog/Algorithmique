@@ -1,3 +1,5 @@
+import org.w3c.dom.ls.LSOutput;
+
 import java.util.*;
 import java.lang.Math;
 import java.lang.System;
@@ -6,7 +8,7 @@ public interface Algorithms {
     Random rng = new Random();
 
     // Position initiale du héros
-    int[] heroPos = {4, 0};
+    int[] heroPos = {0,3};
 
     // Santé initiale du héros
     int heroHealth = 100;
@@ -53,11 +55,18 @@ public interface Algorithms {
     // Initialisation de l'objet State
     State initialState = new State(heroPos, heroHealth, heroScore, monsters, treasures, nbHint, nbLevel);
 
-    int score_to_beat = GS.greedySolution(initialState);
+    //int score_to_beat = GS.greedySolution(initialState);
+
 
     static void main(String[] args) {
         // Your code here
         System.out.println("Hello world!");
+        int[] ss = {0,3};
+        int[] ts = {2,0};
+        int height = 7;
+        int width = 11;
+        System.out.println(isReachableInNMoves(ss,ts,5));
+        System.out.println(getAllValidPaths(ss, 5, width, height));
     }
 
     /*** --- Generate & Test --- ***/
@@ -81,6 +90,40 @@ public interface Algorithms {
     }
 
     /*** --- Greedy Search --- ***/
+
+    private static ArrayList<String> getAllValidPaths(int[] startSquare, int n, int width, int height) {
+        ArrayList<String> allPaths = new ArrayList<>();
+
+        // Méthode récursive pour construire les chemins
+        generatePaths(startSquare[0], startSquare[1], n, width, height, "", allPaths);
+
+        return allPaths;
+    }
+
+    private static void generatePaths(int x, int y, int remainingMoves, char lastMove, int width, int height, String path, ArrayList<String> allPaths) {
+        // Si on a utilisé tous les mouvements, ajouter le chemin à la liste
+        if (remainingMoves == 0) {
+            allPaths.add(path);
+            return;
+        }
+
+        // Tentative de déplacement vers la droite
+        if (x + 1 < width && path.isEmpty() || path.charAt(path.length() - 1) == 'r') {
+            generatePaths(x + 1, y, remainingMoves - 1, width, height, path + 'r', allPaths);
+        }
+
+        // Tentative de déplacement vers la gauche, mais seulement si on ne remonte pas
+        if (x - 1 >= 0 && (path.isEmpty() || path.charAt(path.length() - 1) == 'l') && y > startSquare[1]) {
+            generatePaths(x - 1, y, remainingMoves - 1, width, height, path + 'l', allPaths);
+        }
+
+        // Tentative de déplacement vers le bas
+        if (y + 1 < height) {
+            generatePaths(x, y + 1, remainingMoves - 1, width, height, path + 'd', allPaths);
+        }
+    }
+
+
 
     private static int getValueAtCoords(int[][] board, int x, int y) {
         return board[x][y];
@@ -148,20 +191,31 @@ public interface Algorithms {
         int targetX = targetSquare[0];
         int targetY = targetSquare[1];
 
-        // Check if target square upper than start square
+        // Check if target square is above or equal to start square
         if (targetY < startY)
             return false;
 
         int deltaX = Math.abs(targetX - startX);
         int deltaY = Math.abs(targetY - startY);
 
-        // True if both squares are on the same line and n squares far from eachother
+        // Check if the target square can be reached in exactly n moves
         if (startY == targetY && deltaX == n)
             return true;
 
-        // The intuition behind this line was given by chatGPT
-        return (deltaX + deltaY) <= n && (deltaX + deltaY) % 2 == 1;
+        // Check if the sum of deltaX and deltaY is less than or equal to n,
+        // and if the difference between deltaX and deltaY is odd
+        if ((deltaX + deltaY) <= n && (Math.abs(deltaX - deltaY) % 2 == 1)) {
+            // Check if the hero moves horizontally only once
+            if (deltaX == 1 && deltaY == n - 1)
+                return true;
+            // Check if the hero moves vertically only once
+            if (deltaY == 1 && deltaX == n - 1)
+                return true;
+        }
+
+        return false;
     }
+
 
     private static ArrayList<int[]> getAllValidPathsNSquaresFrom(int[] startSquare, int n) {
         ArrayList<int[]> allSquares = new ArrayList<int[]>();
