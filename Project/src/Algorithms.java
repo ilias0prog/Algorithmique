@@ -7,66 +7,75 @@ import java.lang.System;
 public interface Algorithms {
     Random rng = new Random();
 
-    // Position initiale du héros
-    int[] heroPos = {0,3};
-
-    // Santé initiale du héros
-    int heroHealth = 100;
-
-    // Score initial du héros
-    int heroScore = 0;
-
-    // Tableau représentant les monstres dans le niveau
-    int[][] monsters = new int[][] {
-            {0, 20, 0, 0, 0, 15, 0},
-            {0, 0, 10, 0, 5, 10, 0},
-            {0, 30, 0, 0, 0, 0, 10},
-            {0, 0, 5, 0, 10, 0, 20},
-            {0, 10, 0, 0, 0, 10, 0},
-            {0, 0, 0 , 15, 0, 0, 0},
-            {5 , 0, 0, 0, 30, 0, 0},
-            {0, 0, 5, 0, 10, 0, 20},
-            {0, 10, 0, 0, 0, 10, 0},
-            {0, 0, 0 , 15, 0, 0, 0},
-            {5 , 0, 0, 0, 30, 0, 0}
-    };
-
-    // Tableau représentant les trésors dans le niveau
-    int[][] treasures = new int[][] {
-            {0, 10, 0, 0, 0, 0, 0},
-            {0, 0, 0, 20, 0, 0, 0},
-            {0, 0, 0, 15, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 20},
-            {0, 10, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 5 , 0},
-            {0, 30, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 20},
-            {0, 10, 0, 0, 0, 0, 0},
-            {0, 0, 0, 0, 0, 5 , 0},
-            {0, 30, 0, 0, 0, 0, 0}
-    };
-
-    // Nombre initial de conseils disponibles pour le joueur
-    int nbHint = 1;
-
-    // Numéro du niveau actuel
-    int nbLevel = 1;
-
-    // Initialisation de l'objet State
-    State initialState = new State(heroPos, heroHealth, heroScore, monsters, treasures, nbHint, nbLevel);
-
-    //int score_to_beat = GS.greedySolution(initialState);
-
-
     static void main(String[] args) {
         // Your code here
         System.out.println("Hello world!");
         int[] ss = {0,3};
         int[] ts = {2,0};
-        int height = 7;
-        int width = 11;
-        System.out.println(isReachableInNMoves(ss,ts,5));
-        System.out.println(getAllValidPaths(ss, 5, width, height));
+        int height = 11;
+        int width = 7;
+        //System.out.println(isReachableInNMoves(ss,ts,5));
+
+
+
+        // Position initiale du héros
+        int[] heroPos = {0,3};
+
+        // Santé initiale du héros
+        int heroHealth = 100;
+
+        // Score initial du héros
+        int heroScore = 0;
+
+        // Tableau représentant les monstres dans le niveau
+        int[][] monsters = new int[][] {
+                {0, 20, 0, 0, 0, 15, 0},
+                {0, 0, 10, 0, 5, 10, 0},
+                {0, 30, 0, 0, 0, 0, 10},
+                {0, 0, 5, 0, 10, 0, 20},
+                {0, 10, 0, 0, 0, 10, 0},
+                {0, 0, 0 , 15, 0, 0, 0},
+                {5 , 0, 0, 0, 30, 0, 0},
+                {0, 0, 5, 0, 10, 0, 20},
+                {0, 10, 0, 0, 0, 10, 0},
+                {0, 0, 0 , 15, 0, 0, 0},
+                {5 , 0, 0, 0, 30, 0, 0}
+        };
+
+        // Tableau représentant les trésors dans le niveau
+        int[][] treasures = new int[][] {
+                {0, 10, 0, 0, 0, 0, 0},
+                {0, 0, 0, 20, 0, 0, 0},
+                {0, 0, 0, 15, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 20},
+                {0, 10, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 5 , 0},
+                {0, 30, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 20},
+                {0, 10, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 5 , 0},
+                {0, 30, 0, 0, 0, 0, 0}
+        };
+
+        // Nombre initial de conseils disponibles pour le joueur
+        int nbHint = 1;
+
+        // Numéro du niveau actuel
+        int nbLevel = 1;
+
+        // Initialisation de l'objet State
+        State new_state = new State(heroPos, heroHealth, heroScore, monsters, treasures, nbHint, nbLevel);
+
+        //System.out.println(getAllValidPaths(new_state, new_state.heroPos, 5, width, height));
+
+        long startTime = System.currentTimeMillis();
+        int score_to_beat = GS.greedySolution(new_state);
+        System.out.println("Score to beat : " + score_to_beat);
+        long endTime = System.currentTimeMillis();
+        long elapsedTimeInMillis = endTime - startTime;
+        long elapsedTimeInSeconds = elapsedTimeInMillis / 1000;
+        long remainingMilliseconds = elapsedTimeInMillis % 1000;
+        System.out.println("Temps d'exécution : " + elapsedTimeInSeconds + " secondes et " + remainingMilliseconds + " millisecondes.");
     }
 
     /*** --- Generate & Test --- ***/
@@ -91,49 +100,53 @@ public interface Algorithms {
 
     /*** --- Greedy Search --- ***/
 
-    private static ArrayList<String> getAllValidPaths(int[] startSquare, int n, int width, int height) {
+    private static ArrayList<String> getAllValidPaths(State state, int[] startSquare, int n, int width, int height) {
         ArrayList<String> allPaths = new ArrayList<>();
 
         // Méthode récursive pour construire les chemins
-        generatePaths(startSquare[0], startSquare[1], n, width, height, "", allPaths);
+        generatePaths(state,startSquare[1], startSquare[0], n, width, height, "", allPaths);
 
         return allPaths;
     }
 
-    private static void generatePaths(int x, int y, int remainingMoves, char lastMove, int width, int height, String path, ArrayList<String> allPaths) {
+    private static void generatePaths(State state, int x, int y, int remainingMoves, int width, int height, String path, ArrayList<String> allPaths) {
         // Si on a utilisé tous les mouvements, ajouter le chemin à la liste
-        if (remainingMoves == 0) {
+        if (remainingMoves == 0 || (y+1 == height && x+1 == width && path.charAt(path.length() - 1) == 'r') || (y+1 == height && x == 0 && path.charAt(path.length() - 1) == 'l')) {
             allPaths.add(path);
             return;
         }
 
+        // Tentative de déplacement vers le bas
+        //if (y + 1 < height || ( y+1 == height && (x >= width - 1 && path.charAt(path.length() - 1) == 'r' || 0 >= x && path.charAt(path.length() - 1) == 'l'))) {
+        if (y + 1 < height) {
+
+            generatePaths(state, x, y + 1, remainingMoves - 1, width, height, path + 'd', allPaths);
+            }
+
         // Tentative de déplacement vers la droite
-        if (x + 1 < width && path.isEmpty() || path.charAt(path.length() - 1) == 'r') {
-            generatePaths(x + 1, y, remainingMoves - 1, width, height, path + 'r', allPaths);
-        }
+
+            if (x + 1 < width && (path.isEmpty() || path.charAt(path.length() - 1) == 'r' || path.charAt(path.length() - 1) == 'd')) {
+                generatePaths(state, x + 1, y, remainingMoves - 1, width, height, path + 'r', allPaths);
+            }
+
 
         // Tentative de déplacement vers la gauche, mais seulement si on ne remonte pas
-        if (x - 1 >= 0 && (path.isEmpty() || path.charAt(path.length() - 1) == 'l') && y > startSquare[1]) {
-            generatePaths(x - 1, y, remainingMoves - 1, width, height, path + 'l', allPaths);
-        }
-
-        // Tentative de déplacement vers le bas
-        if (y + 1 < height) {
-            generatePaths(x, y + 1, remainingMoves - 1, width, height, path + 'd', allPaths);
-        }
+            if (x > 0 && (path.isEmpty() || path.charAt(path.length() - 1) == 'l' || path.charAt(path.length() - 1) == 'd')) {
+                generatePaths(state, x - 1, y, remainingMoves - 1, width, height, path + 'l', allPaths);
+            }
     }
 
 
 
-    private static int getValueAtCoords(int[][] board, int x, int y) {
-        return board[x][y];
+    private static int getValueAtCoords(int[][] board, int y, int x) {
+        return board[y][x];
     }
 
     private static int getPathScore(State state, String path) {
         int pathLength = path.length();
         int score = state.heroScore + state.heroHealth;
-        int heroX = state.heroPos[0];
-        int heroY = state.heroPos[1];
+        int heroX = state.heroPos[1];
+        int heroY = state.heroPos[0];
         int height = state.monsters.length;
         int width = state.monsters[0].length;
 
@@ -141,30 +154,32 @@ public interface Algorithms {
             char direction = path.charAt(i);
             switch (direction) {
                 case 'd':
-                    if (heroY < height) {
+                    if (heroY + 1 < height) {
                         // Faire descendre le héros
                         heroY += 1;
-                        break;
                     }
+                    break;
                 case 'r':
-                    if (heroX < width) {
+                    if (heroX + 1 < width) {
                         // Faire avancer le héros
                         heroX += 1;
-                        break;
                     }
+                    break;
                 case 'l':
-                    if (width < heroX) {
+                    if (heroX - 1 >= 0) {
+                        // Faire reculer le héros
                         heroX -= 1;
-                        break;
                     }
+                    break;
             }
-            // Ramasser le trésor s'il y'en a un
-            score += getValueAtCoords(state.treasures, heroX, heroY);
-            // Combattre le monstre s'il y'en a un
-            score -= getValueAtCoords(state.monsters, heroX, heroY);
+            // Ramasser le trésor s'il y en a un
+            score += getValueAtCoords(state.monsters, heroY, heroX);
+            // Combattre le monstre s'il y en a un
+            score -= getValueAtCoords(state.monsters, heroY, heroX);
         }
         return score;
     }
+
 
     /**
      *
@@ -231,10 +246,10 @@ public interface Algorithms {
 
     private static StringBuilder getPathTo(int[] startSquare, int[] targetSquare, State state) {
         StringBuilder path = new StringBuilder();
-        int startX = startSquare[0];
-        int startY = startSquare[1];
-        int targetX = targetSquare[0];
-        int targetY = targetSquare[1];
+        int startX = startSquare[1];
+        int startY = startSquare[0];
+        int targetX = targetSquare[1];
+        int targetY = targetSquare[0];
         int height = state.monsters.length;
         int width = state.monsters[0].length;
 
@@ -258,58 +273,6 @@ public interface Algorithms {
         return path;
     }
 
-    private static String getBestDirection(int[] startSquare, State state) {
-        ArrayList<int[]> allSquares = new ArrayList<int[]>();
-        allSquares = getAllValidPathsNSquaresFrom(startSquare, 5);
-        int bestScore = -999999999;
-        StringBuilder bestDir = new StringBuilder();
-        for (int[] allSquare : allSquares) {
-            StringBuilder path = new StringBuilder();
-            path = getPathTo(startSquare, allSquare, state);
-            int score = getPathScore(state, path.toString());
-            if (score > bestScore) {
-                bestDir = path;
-                bestScore = score;
-            }
-        }
-        return bestDir.substring(0, 1);
-    }
-
-//    private static void moveHero(State state, int[] startSquare, String path) {
-//        int pathLength = path.length();
-//        for (int i = 0; i < pathLength; i++) {
-//            char direction = path.charAt(i);
-//            int heroX = startSquare[0];
-//            int heroY = startSquare[1];
-//            int height = state.monsters.length;
-//            int width = state.monsters[0].length;
-//
-//            switch (direction) {
-//                case 'd':
-//                    if (heroY < height) {
-//                        // Faire descendre le héros
-//                        state.heroPos[1] += 1;
-//                    }
-//                case 'r':
-//                    if (heroX < width) {
-//                        // Faire avancer le héros
-//                        state.heroPos[0] += 1;
-//                        //
-//                    }
-//                case 'l':
-//                    if (width < heroX) {
-//                        state.heroPos[0] -= 1;
-//                    }
-//            }
-//            // Ramasser le trésor s'il y'en a un
-//            state.heroScore += getValueAtCoords(state.treasures, heroX, state.heroPos[1]);
-//            // Combattre le monstre s'il y'en a un
-//            state.heroHealth -= getValueAtCoords(state.monsters, heroX, state.heroPos[1]);
-//            if (state.heroHealth < 1) {
-//                System.out.println("T'es mort");
-//            }
-//        }
-//    }
 
     private static void moveHero(State state, String path) {
         int pathLength = path.length();
@@ -319,58 +282,50 @@ public interface Algorithms {
         for (char direction : path.toCharArray()) {
             switch (direction) {
                 case 'd':
-                    if (state.heroPos[1] < height) {
-                        // Faire descendre le héros
-                        state.heroPos[1] += 1;
-                    }
-                    break;
-                case 'r':
-                    if (state.heroPos[0] < width) {
-                        // Faire avancer le héros
+                    if (state.heroPos[0] + 1 < height) {
+                        // Hero groes down
                         state.heroPos[0] += 1;
                     }
                     break;
+                case 'r':
+                    if (state.heroPos[1] + 1 < width) {
+                        // Hero goes right
+                        state.heroPos[1] += 1;
+                    }
+                    break;
                 case 'l':
-                    if (width < state.heroPos[0]) {
-                        state.heroPos[0] -= 1;
+                    if (state.heroPos[1] - 1 >= 0) {
+                        // Hero goes left
+                        state.heroPos[1] -= 1;
                     }
                     break;
             }
-            // Ramasser le trésor s'il y'en a un
-            state.heroScore += getValueAtCoords(state.treasures, state.heroPos[0], state.heroPos[1]);
-            // Combattre le monstre s'il y'en a un
-            state.heroHealth -= getValueAtCoords(state.monsters, state.heroPos[0], state.heroPos[1]);
-            if (state.heroHealth < 1) {
-                System.out.println("T'es mort");
+            // Check if hero is still within the board
+            if (state.heroPos[0] >= 0 && state.heroPos[0] < height &&
+                    state.heroPos[1] >= 0 && state.heroPos[1] < width) {
+                // If treasure on that square, collect it
+                state.heroScore += getValueAtCoords(state.treasures, state.heroPos[0], state.heroPos[1]);
+                state.treasures[state.heroPos[0]][state.heroPos[1]] = 0;
+                // If monster on that square, fight it
+                state.heroHealth -= getValueAtCoords(state.monsters, state.heroPos[0], state.heroPos[1]);
+                state.monsters[state.heroPos[0]][state.heroPos[1]] = 0;
+
+                if (state.heroHealth < 1) {
+                    System.out.println("T'es mort");
+                }
+                System.out.println("Hero position : " + Arrays.toString(state.heroPos));
+                System.out.println("Hero score : " + state.heroScore);
+                System.out.println("Hero health : " + state.heroHealth);
+            } else {
+                System.out.println("Hero out of board");
             }
-            System.out.println("Hero position : " + Arrays.toString(state.heroPos));
-            System.out.println("Hero score : " + state.heroScore);
         }
     }
 
-//    private static boolean heroCanMove(State state){
-//        if(state.heroHealth > 1) return false;
-//
-//        // Check surrounding squares
-//        int leftMonster = state.monsters[state.heroPos[0] - 1][state.heroPos[1]];
-//        int rightMonster = state.monsters[state.heroPos[0] + 1][state.heroPos[1]];
-//        int bottomMonster = state.monsters[state.heroPos[0]][state.heroPos[1] + 1];
-//
-//        int leftTreasure = state.treasures[state.heroPos[0] - 1][state.heroPos[1]];
-//        int rightTreasure = state.treasures[state.heroPos[0] + 1][state.heroPos[1]];
-//        int bottomTreasure = state.treasures[state.heroPos[0]][state.heroPos[1] + 1];
-//
-//        int minMonster = Math.min(leftMonster,rightMonster);
-//        minMonster = Math.min(minMonster, bottomMonster);
-//        int maxTreasure = Math.max(leftTreasure,rightTreasure);
-//        maxTreasure = Math.max(maxTreasure, bottomTreasure);
-//
-//        return state.heroHealth >= (state.heroHealth + maxTreasure - minMonster);
-//    }
 
     private static boolean heroCanMove(State state) {
-        int heroX = state.heroPos[0];
-        int heroY = state.heroPos[1];
+        int heroX = state.heroPos[1];
+        int heroY = state.heroPos[0];
         int height = state.monsters.length;
         int width = state.monsters[0].length;
 
@@ -379,32 +334,91 @@ public interface Algorithms {
             return false;
         }
 
-        int monster = state.monsters[heroX][heroY];
-        int treasure = state.treasures[heroX][heroY];
+        int monster = state.monsters[heroY][heroX];
+        int treasure = state.treasures[heroY][heroX];
 
         // Condition de retour basée sur la logique du jeu
         return state.heroHealth >= (state.heroHealth + treasure - monster);
     }
 
+    private static String getBestPathIn(State state, ArrayList<String> all_paths){
+        String best_path = all_paths.getFirst();
+        int best_score = 0;
+        for(String path : all_paths){
+            int path_score = getPathScore(state,path);
+            if(best_score < path_score){
+                best_path = path;
+                best_score = path_score;
+            }
+        }
+        return best_path;
+    }
+
 
     interface GS {
         static int greedySolution(State state) {
-            int[] startSquare = state.heroPos;
             int height = state.monsters.length;
             int width = state.monsters[0].length;
             int score_to_beat = 0;
+            int p = 0;
 
-            while (state.heroPos[0] < width && state.heroPos[1] < height) {
-                System.out.println("################################");
-                String best_direction = getBestDirection(startSquare, state);
-                System.out.println(best_direction);
-                int path_score = getPathScore(state, best_direction);
-                moveHero(state, best_direction);
+            while ( p < 100 && state.heroPos[1] < width && state.heroPos[0] < height && 0 < state.heroHealth && heroCanMove(state)) {
+//                int right_score;
+//                int left_score;
+//                int down_score;
+//                int best_score = 0;
+//                ArrayList<String> right_paths;
+//                ArrayList<String> left_paths;
+//                ArrayList<String> down_paths;
+//                String best_direction;
+//
+//                // Find the value of the square on the right
+//                int[] r_square = {state.heroPos[0], state.heroPos[1]+1};
+//                right_paths = getAllValidPaths(r_square,5,width,height);
+//                String r_path = getBestPathIn(state, right_paths);
+//                right_score = getPathScore(state,r_path);
+//                if(best_score < right_score){
+//                    best_direction = r_path;
+//                }
+//
+//                int[] l_square = {state.heroPos[0], state.heroPos[1]-1};
+//                left_paths = getAllValidPaths(l_square,5,width,height);
+//                String l_path = getBestPathIn(state, left_paths);
+//                left_score = getPathScore(state,l_path);
+//                if(best_score < left_score){
+//                    best_direction = l_path;
+//                }
+//
+//                int[] d_square = {state.heroPos[0]+1, state.heroPos[1]};
+//                down_paths = getAllValidPaths(d_square,5,width,height);
+//                String d_path = getBestPathIn(state, down_paths);
+//                down_score = getPathScore(state,d_path);
+//                if(best_score < down_score){
+//                    best_direction = d_path;
+//                }
+                int best_score = 0;
+                char best_direction = 'd';
+                ArrayList<String> all_paths;
+                all_paths = getAllValidPaths(state,state.heroPos, 5, width, height);
+                for(String path : all_paths){
+                    int path_score = getPathScore(state,path);
+                    if(best_score < path_score){
+                        best_direction = path.charAt(0);
+                        best_score = path_score;
+                    }
+                }
+                moveHero(state, String.valueOf(best_direction));
+//                String best_direction = getBestDirection(state.heroPos, state);
+//                System.out.println(best_direction);
+//                int path_score = getPathScore(state, best_direction);
+//                moveHero(state, best_direction);
 
-                score_to_beat += path_score;
+//                score_to_beat += path_score;
+//                p += 1;
+                if(state.heroPos[0] >= height-1) break;
             }
-            System.out.println("Score to beat : " + score_to_beat);
-            return score_to_beat;
+
+            return state.heroScore;
         }
         /*** --- Utility functions for GS --- ***/
         // TODO (if you have any)
