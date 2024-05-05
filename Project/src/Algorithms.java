@@ -2,7 +2,7 @@
 import java.util.*;
 import java.lang.System;
 
-public interface Algorithms {
+public interface GloutonGenerate {
     Random rng = new Random();
 
     static void main(String[] args) {
@@ -13,6 +13,14 @@ public interface Algorithms {
 //        int height = 11;
 //        int width = 7;
 //        //System.out.println(isReachableInNMoves(ss,ts,5));
+
+        int[][] monsters_array = new int[11][7];
+        int[][] treasures_array = new int[11][7];
+
+        GT.generateMonstersAndTreasures(monsters_array, treasures_array);
+        printMatrix(monsters_array);
+        System.out.println("***************************");
+        printMatrix(treasures_array);
 
 
 
@@ -62,9 +70,11 @@ public interface Algorithms {
         int nbLevel = 1;
 
         // Initialisation de l'objet State
-        State new_state = new State(heroPos, heroHealth, heroScore, monsters, treasures, nbHint, nbLevel);
+        State new_state = new State(heroPos, heroHealth, heroScore, monsters_array, treasures_array, nbHint, nbLevel);
 
         //System.out.println(getAllValidPaths(new_state, new_state.heroPos, 5, width, height));
+
+
 
         long startTime = System.currentTimeMillis();
         int score_to_beat = GS.greedySolution(new_state);
@@ -76,15 +86,145 @@ public interface Algorithms {
         System.out.println("Temps d'exécution : " + elapsedTimeInSeconds + " secondes et " + remainingMilliseconds + " millisecondes.");
     }
 
+    public static void printMatrix(int[][] matrix) {//Chatgpt for this function (je demanderais pour savoir si je peux)
+        for (int[] row : matrix) {
+            System.out.println(Arrays.toString(row));
+        }
+    }
+
     /*** --- Generate & Test --- ***/
+    /* --- Generate & Test --- */
     interface GT {
         static void generateMonstersAndTreasures(int[][] monstersToFill, int[][] treasuresToFill) {
-            // TODO
+            boolean result = false;
+            // Testing test function of GT
+            while (!result) {
+                generate(monstersToFill, treasuresToFill);
+                result = test(monstersToFill, treasuresToFill);
+            }
         }
 
-        /*** --- Utility functions for GT --- ***/
-        // TODO (if you have any)
+        /*
+         * @ [First, OpenJML doc]
+         * @ requires monstersToFill != null && treasuresToFill != null
+         * && monstersToFill.length == treasuresToFill.length
+         * && monstersToFill.length != 0 && treasuresToFill.length != 0;
+         * @ ensures \result == (\forall int i; 0<=i; i < monstersToFill.length; monstersToFill[i] >= 2 && treasuresToFill[i] < 2)
+         * @ ensures \result == (\sum int i; 0<=i && i < monstersToFill.length; monstersToFill[i] >= treasuresToFill[i])
+         * --- [Second, authors info]
+         * Specification: Houria Ariouat | Last update : 04/05/24
+         * Implementation: Houria Ariouat | Last update : 01/05/24
+         * Test/Debug:  Houria Ariouat, Julien Jamoulle| Last update :01/05/24
+         ***/
+
+        static void generate(int[][] monstersToFill, int[][] treasuresToFill) {
+            //for each row
+            /*
+             * @ loop_invariant 0 <= i <= treasureToFill.length -1
+             * @ variant  i = treasureToFill.length-1
+             ***/
+            for (int i = 0; i <= treasuresToFill.length - 1; i++) {
+                int[] monsterCount = new int[monstersToFill.length];
+                int[] treasureCount = new int[treasuresToFill.length];
+                int[] totalmonsterValue = new int[monstersToFill.length];
+                int[] totaltreasureValue = new int[treasuresToFill.length];
+                Random randomobject = new Random();
+                int valuetreasure;
+                int valuemonster;
+                //for each column at a specific row
+                /*
+                 * @ loop_invariant 0 <= j <= treasureToFill.length -1
+                 * @ variant  j = treasureToFill .length-1
+                 ***/
+                for (int j = 0; j <= treasuresToFill[i].length - 1; j++) {
+
+
+                    int randomnumber = randomobject.nextInt(6);
+
+
+                    //test the probabilities
+                    //if 1/6
+                    if (randomnumber == 5 && treasureCount[i] < 2 && monstersToFill[i][j] == 0) {//condition to have a valid board
+                        valuetreasure = randomobject.nextInt(1, 99);
+                        treasuresToFill[i][j] = valuetreasure;
+                        treasureCount[i] += 1;
+                        totaltreasureValue[i] += treasuresToFill[i][j];
+                    }
+
+                    //if 2/6
+                    if (randomnumber <= 1 && treasuresToFill[i][j] == 0) {
+                        valuemonster = randomobject.nextInt(1, 50);
+                        monstersToFill[i][j] = valuemonster;
+                        monsterCount[i] += 1;
+                        totalmonsterValue[i] += monstersToFill[i][j];//add total of value to my variable
+                    }
+                    //if 3/6
+                    if (randomnumber > 1 && randomnumber <= 4) {
+                        treasuresToFill[i][j] = 0;
+                        monstersToFill[i][j] = 0;
+                    }
+                }
+
+            }
+
+        }
+
+        /*
+         * @ [First, OpenJML doc]
+         *
+         * @ requires monsterToTest!=null && treasuresToTest!=null
+         * && monsterToTest.lenght!=0 && treasuresToTest.lenght!=0
+         * && monsterToTest.lenght==treasuresToTest.length
+         * && \forall(int i;0<=i &&  i<monsterToTest.lenght;(monsterToTest[i].lenght==treasuresToTest[i].length) && (monsterToTest[i].lenght!=0) && (treasuresToTest[i].length!=0));
+         * @ ensures (\return == true)==>/forall(int i;0<=i &&  i<monsterToTest.lenght; /sum(int j;0<=j &&  j<monsterToTest[i].lenght;<monsterToTest[i][j])>=/sum(int j;0<=j &&  j<treasuresToTest[i].lenght;<treasuresToTest[i][j])
+         * && /forall(int i;0<=i &&  i<monsterToTest.lenght; /sum(int j;0<=j &&  j<monsterToTest[i].lenght;
+         * --- [Second, authors info]
+         * Specification: Julien Jamoulle | Last update : 05/04/24
+         * Implementation: Julien Jamoulle | Last update : 03/04/24
+         * Test/Debug: Julien Jamoulle| Last update :27/04/24
+         ***/
+        static boolean test(int[][] monsterToTest, int[][] treasuresToTest) {
+            // ** Time Complexity= n^2, Mem Complexity= ? **//
+            // For each row calculate the treasures and monster
+            for (int i = 0; i < monsterToTest.length; i++) {
+                // **Variant= monsterToTest.length-i, Inv: 0<=i<monsterToTest.length,... **//
+                int monsterCount = 0;
+                int monsterValue = 0;
+                int treasureCount = 0;
+                int treasureValue = 0;
+
+                for (int j = 0; j < monsterToTest[i].length; j++) {
+                    // **Variant= monsterToTest[i].length-j, Inv: 0<=j<monsterToTest[i].length,...
+                    // **//
+                    // If there is a monster on the case update the value link to it
+                    if (monsterToTest[i][j] != 0) {
+                        monsterCount++;
+                        monsterValue += monsterToTest[i][j];
+                    }
+                    if (treasuresToTest[i][j] != 0) {
+                        treasureCount++;
+                        treasureValue += treasuresToTest[i][j];
+                    }
+
+                    // Test if there is a monster and a treasure on the same case
+                    if(treasuresToTest[i][j]!=0 && monsterToTest[i][j]!=0){
+                        return false;
+                    }
+                }
+
+                // Checking the conditions requiered by the game
+                if ((monsterCount < 2) || (treasureCount > 2)) {
+                    return false;
+                }
+
+                if (treasureValue > monsterValue) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
+
 
     /*** --- Divide & Conquer --- ***/
     interface DC {
@@ -97,6 +237,27 @@ public interface Algorithms {
     }
 
     /*** --- Greedy Search --- ***/
+
+    private static String getBestPath(State state, int[] startSquare, int n, int width, int height) {
+        String bestPath = ""; // Initialise le meilleur chemin vide
+        int bestScore = Integer.MIN_VALUE; // Initialise le meilleur score à une valeur minimale
+
+        ArrayList<String> allPaths = new ArrayList<>();
+        generatePaths(state, startSquare[1], startSquare[0], n, width, height, "", allPaths); // Génère tous les chemins possibles
+
+        // Pour chaque chemin généré
+        for (String path : allPaths) {
+            int pathScore = getPathScore(state, path, startSquare, state.heroHealth, state.heroScore); // Calcule le score du chemin
+
+            // Si le score du chemin actuel est meilleur que le meilleur score actuel
+            if (pathScore > bestScore) {
+                bestScore = pathScore; // Met à jour le meilleur score
+                bestPath = path; // Met à jour le meilleur chemin
+            }
+        }
+
+        return bestPath; // Retourne le meilleur chemin trouvé
+    }
 
     private static ArrayList<String> getAllValidPaths(State state, int[] startSquare, int n, int width, int height) {
         ArrayList<String> allPaths = new ArrayList<>();
@@ -117,17 +278,17 @@ public interface Algorithms {
         // Going down if possible
         if (y + 1 < height) {
             generatePaths(state, x, y + 1, remainingMoves - 1, width, height, path + 'd', allPaths);
-            }
+        }
 
         // Going right if possible
-            if (x + 1 < width && (path.isEmpty() || path.charAt(path.length() - 1) == 'r' || path.charAt(path.length() - 1) == 'd')) {
-                generatePaths(state, x + 1, y, remainingMoves - 1, width, height, path + 'r', allPaths);
-            }
+        if (x + 1 < width && (path.isEmpty() || path.charAt(path.length() - 1) == 'r' || path.charAt(path.length() - 1) == 'd')) {
+            generatePaths(state, x + 1, y, remainingMoves - 1, width, height, path + 'r', allPaths);
+        }
 
         // Going left if possible
-            if (x > 0 && (path.isEmpty() || path.charAt(path.length() - 1) == 'l' || path.charAt(path.length() - 1) == 'd')) {
-                generatePaths(state, x - 1, y, remainingMoves - 1, width, height, path + 'l', allPaths);
-            }
+        if (x > 0 && (path.isEmpty() || path.charAt(path.length() - 1) == 'l' || path.charAt(path.length() - 1) == 'd')) {
+            generatePaths(state, x - 1, y, remainingMoves - 1, width, height, path + 'l', allPaths);
+        }
     }
 
 
@@ -136,9 +297,9 @@ public interface Algorithms {
         return board[y][x];
     }
 
-    private static int getPathScore(State state, String path, int[] start_square) {
+    private static int getPathScore(State state, String path, int[] start_square, int hero_health, int hero_score) {
         int pathLength = path.length();
-        int score = state.heroScore + state.heroHealth;
+        int score = hero_score + hero_health;
         int heroX = start_square[1];
         int heroY = start_square[0];
         int height = state.monsters.length;
@@ -167,12 +328,16 @@ public interface Algorithms {
                     break;
             }
             // Ramasser le trésor s'il y en a un
-            score += getValueAtCoords(state.monsters, heroY, heroX);
+            score += getValueAtCoords(state.treasures, heroY, heroX);
             // Combattre le monstre s'il y en a un
             score -= getValueAtCoords(state.monsters, heroY, heroX);
         }
+//        System.out.println(path);
+//        System.out.println(score);
         return score;
     }
+
+
 
     // startSquare[0] = y and startSquare[1] = x
     private static int[] moveHero(State state, String path, int[] startSquare, int hero_health, int hero_score) {
@@ -205,13 +370,12 @@ public interface Algorithms {
                     startSquare[1] >= 0 && startSquare[1] < width) {
                 // If treasure on that square, collect it
                 hero_score += getValueAtCoords(state.treasures, startSquare[0], startSquare[1]);
-                state.treasures[startSquare[0]][startSquare[1]] = 0;
                 // If monster on that square, fight it
                 hero_health -= getValueAtCoords(state.monsters, startSquare[0], startSquare[1]);
-                state.monsters[startSquare[0]][startSquare[1]] = 0;
 
                 if (hero_health < 1) {
                     System.out.println("T'es mort");
+                    break;
                 }
                 System.out.println("Hero position : " + Arrays.toString(startSquare));
                 System.out.println("Hero score : " + hero_score);
@@ -233,22 +397,37 @@ public interface Algorithms {
             int[] startSquare = {state.heroPos[0],state.heroPos[1]};
             int heroHealth = state.heroHealth;
             int heroScore = state.heroScore;
+//            String last_move = "a";
+//
+//            while (startSquare[1] < width && startSquare[0] < height-1 && 0 < heroHealth) {
+//                int best_score = 0;
+//                char best_direction = 'd';
+//                ArrayList<String> all_paths;
+//                all_paths = getAllValidPaths(state,startSquare, 5, width, height, last_move);
+//                for(String path : all_paths){
+//                    int path_score = getPathScore(state,path, startSquare, heroHealth, heroScore);
+//                    if(best_score < path_score && !path.equals(last_move)){
+//                        best_score = path_score;
+//                        best_direction = path.charAt(0);
+//                    }
+//                }
+//                System.out.println(best_direction);
+//                String direction = String.valueOf(best_direction);
+////                if(!(direction.equals("r") && last_move.equals("l")) && !(direction.equals("l") && last_move.equals("r")) ){}
+//                int[] health_score = moveHero(state, direction, startSquare, heroHealth, heroScore, last_move);
+//                heroHealth = health_score[0];
+//                heroScore = health_score[1];
+//                if(heroHealth <= 0){
+//                    break;
+//                    }
+//                if(startSquare[0] == height-1) System.out.println("Bottom of the board reached");
+//            }
+//            return heroScore;
 
-            while (startSquare[1] < width && startSquare[0] < height-1 && 0 < heroHealth) {
-                int best_score = 0;
-                char best_direction = 'd';
-                ArrayList<String> all_paths;
-                all_paths = getAllValidPaths(state,startSquare, 5, width, height);
-                for(String path : all_paths){
-                    int path_score = getPathScore(state,path, startSquare);
-                    if(best_score < path_score){
-                        best_direction = path.charAt(0);
-                        best_score = path_score;
-                    }
-                }
-                int[] health_score = moveHero(state, String.valueOf(best_direction), startSquare, heroHealth, heroScore);
-                heroHealth = health_score[0];
-                heroScore = health_score[1];
+            while (startSquare[1] < width && startSquare[0] < height-1 && 0 < heroHealth){
+                String best_path = getBestPath(state,startSquare,5, width, height);
+                String best_direction = best_path.substring(0,1);
+                moveHero(state, best_direction, startSquare, heroHealth, heroScore);
             }
             return heroScore;
         }
