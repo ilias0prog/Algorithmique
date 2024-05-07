@@ -427,7 +427,7 @@ public interface GloutonGenerate {
             while (startSquare[1] < width && startSquare[0] < height-1 && 0 < heroHealth){
                 String best_path = getBestPath(state,startSquare,5, width, height);
                 String best_direction = best_path.substring(0,1);
-                if(!(best_direction.equals("r") && last_move.equals("l")) && !(best_direction.equals("l") && last_move.equals("r")))
+                moveHero(state,best_direction,startSquare,heroHealth,heroScore);
             }
             return heroScore;
         }
