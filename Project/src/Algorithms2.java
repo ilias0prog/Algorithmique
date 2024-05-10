@@ -1,4 +1,5 @@
 
+import java.io.PrintStream;
 import java.util.*;
 import java.lang.System;
 
@@ -14,8 +15,8 @@ public interface Algorithms2 {
 //        int width = 7;
 //        //System.out.println(isReachableInNMoves(ss,ts,5));
 
-        int[][] monsters_array = new int[7][7];
-        int[][] treasures_array = new int[7][7];
+        int[][] monsters_array = new int[11][7];
+        int[][] treasures_array = new int[11][7];
 
         GT.generateMonstersAndTreasures(monsters_array, treasures_array);
         printMatrix(monsters_array);
@@ -245,6 +246,7 @@ public interface Algorithms2 {
 
     interface GS {
 
+        // L'objet LastMove permet de traquer le dernier déplacement effectué par l'algorithme plus facilement.
         class LastMove {
             String last_move;
             private LastMove(){
@@ -278,36 +280,29 @@ public interface Algorithms2 {
         /*** --- Utility functions for GS --- ***/
         // TODO (if you have any)
         private static String getBestPath(State state, int[] startSquare, int n, int width, int height, GS.LastMove last_move) {
-            String bestPath = ""; // Initialise le meilleur chemin vide
-            int bestScore = Integer.MIN_VALUE; // Initialise le meilleur score à une valeur minimale
+            String bestPath = "";
+            int bestScore = Integer.MIN_VALUE;
 
             ArrayList<String> allPaths = new ArrayList<>();
-            generatePaths(state, startSquare[1], startSquare[0], n, width, height, "", allPaths, last_move); // Génère tous les chemins possibles
-
-            // Pour chaque chemin généré
+            generatePaths(startSquare[1], startSquare[0], n, width, height, "", allPaths, last_move); // Generate all 5 moves long possible paths
+            int pathScore;
+            // Loop on all generated paths
             for (String path : allPaths) {
-                int pathScore = getPathScore(state, path, startSquare, state.heroHealth, state.heroScore); // Calcule le score du chemin
+                pathScore = getPathScore(state, path, startSquare, state.heroHealth, state.heroScore); // Compute path score
 
-                // Si le score du chemin actuel est meilleur que le meilleur score actuel
-                if (pathScore > bestScore) {
-                    bestScore = pathScore; // Met à jour le meilleur score
-                    bestPath = path; // Met à jour le meilleur chemin
+                // if a new best score is found, save it into bestScore
+                if (pathScore > bestScore && !path.isEmpty()) {
+                    bestScore = pathScore; // Update best score
+                    bestPath = path; // Update best path
                 }
             }
-            return bestPath; // Return the best path found as well as the last move
+            System.out.println("Best path : " + bestPath);
+            System.out.println("Path score : " + bestScore);
+            return bestPath; // Return the best path found
         }
 
-        private static ArrayList<String> getAllValidPaths(State state, int[] startSquare, int n, int width, int height, GS.LastMove lm) {
-            ArrayList<String> allPaths = new ArrayList<>();
-
-            // Get all paths
-            generatePaths(state,startSquare[1], startSquare[0], n, width, height, "", allPaths, lm);
-
-            return allPaths;
-        }
-
-        private static void generatePaths(State state, int x, int y, int remainingMoves, int width, int height, String path, ArrayList<String> allPaths, GS.LastMove lm) {
-            // After n moves, add path to allPaths
+        private static void generatePaths(int x, int y, int remainingMoves, int width, int height, String path, ArrayList<String> allPaths, GS.LastMove lm) {
+            // After n moves, add path to allPaths and return
             if (remainingMoves == 0 || (y+1 == height && x+1 == width && path.charAt(path.length() - 1) == 'r') || (y+1 == height && x == 0 && path.charAt(path.length() - 1) == 'l')) {
                 allPaths.add(path);
                 return;
@@ -315,22 +310,17 @@ public interface Algorithms2 {
 
             // Going down if possible
             if (y + 1 < height) {
-//            lm.last_move = "d";
-                generatePaths(state, x, y + 1, remainingMoves - 1, width, height, path + 'd', allPaths, lm);
+                generatePaths(x, y + 1, remainingMoves - 1, width, height, path + 'd', allPaths, lm);
             }
 
             // Going right if possible
-//        if (x + 1 < width && (path.isEmpty() || path.charAt(path.length() - 1) == 'r' || path.charAt(path.length() - 1) == 'd') && !lm.last_move.equals("l")) {
             if (x + 1 < width && !lm.last_move.equals("l")) {
-//            lm.last_move = "r";
-                generatePaths(state, x + 1, y, remainingMoves - 1, width, height, path + 'r', allPaths, lm);
+                generatePaths(x + 1, y, remainingMoves - 1, width, height, path + 'r', allPaths, lm);
             }
 
             // Going left if possible
-//        if (x > 0 && (path.isEmpty() || path.charAt(path.length() - 1) == 'l' || path.charAt(path.length() - 1) == 'd' && !lm.last_move.equals("r"))) {
             if (x > 0 && !lm.last_move.equals("r")) {
-//            lm.last_move = "l";
-                generatePaths(state, x - 1, y, remainingMoves - 1, width, height, path + 'l', allPaths, lm);
+                generatePaths(x - 1, y, remainingMoves - 1, width, height, path + 'l', allPaths, lm);
             }
         }
 
@@ -369,12 +359,12 @@ public interface Algorithms2 {
                         }
                         break;
                 }
-                // Ramasser le trésor s'il y en a un
+                // If treasure on this square, collect it
                 hero_score += getValueAtCoords(state.treasures, heroY, heroX);
-                // Combattre le monstre s'il y en a un
+                // If monster on this square, fight it
                 hero_health -= getValueAtCoords(state.monsters, heroY, heroX);
             }
-            if(hero_health < 0) return Integer.MIN_VALUE;
+            if(hero_health < 0) hero_health = Integer.MIN_VALUE;
             return hero_health + hero_score;
         }
 
@@ -409,16 +399,16 @@ public interface Algorithms2 {
                 // Check if hero is still within the board
                 if (startSquare[0] >= 0 && startSquare[0] < height &&
                         startSquare[1] >= 0 && startSquare[1] < width) {
-                    // If treasure on that square, collect it
+                    // If treasure on this square, collect it
                     hero_score += getValueAtCoords(treasures, startSquare[0], startSquare[1]);
                     treasures[startSquare[0]][startSquare[1]] = 0;
 
-                    // If monster on that square, fight it
+                    // If monster on this square, fight it
                     hero_health -= getValueAtCoords(monsters, startSquare[0], startSquare[1]);
                     monsters[startSquare[0]][startSquare[1]] = 0;
 
                     if (hero_health < 1) {
-                        System.out.println("T'es mort");
+                        System.out.println("*Dead*");
                         break;
                     }
                     System.out.println("Hero position : " + Arrays.toString(startSquare));
